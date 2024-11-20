@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { DatabaseModule } from './database/database.module';
 import { ParserModule } from './parser/parser.module';
 import { FxqlModule } from './fxql/fxql.module';
+import { HelperService } from './helper/helper.service';
 
 @Module({
   imports: [DatabaseModule, ParserModule, FxqlModule],
   controllers: [],
-  providers: [],
+  providers: [HelperService],
 })
 export class AppModule {}

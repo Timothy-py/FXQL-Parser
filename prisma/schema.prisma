@@ -7,6 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id Int @id @default(autoincrement())
+model FXQL {
+  id                  Int      @id @default(autoincrement())
+  sourceCurrency      Currency
+  destinationCurrency Currency
+  buyPrice            Float
+  sellPrice           Float
+  capAmount           Int
+  createdAt           DateTime @default(now())
+
+  @@unique([sourceCurrency, destinationCurrency])
+}
+
+enum Currency {
+  USD
+  GBP
+  EUR
 }

@@ -62,11 +62,11 @@ export class ParserService {
         } else {
           // If validation succeeds, push the parsed results array
           results.push({
-            SourceCurrency: source,
-            DestinationCurrency: destination,
-            BuyPrice: parseFloat(buy),
-            SellPrice: parseFloat(sell),
-            CapAmount: parseInt(cap, 10),
+            sourceCurrency: source,
+            destinationCurrency: destination,
+            buyPrice: parseFloat(buy),
+            sellPrice: parseFloat(sell),
+            capAmount: parseInt(cap, 10),
           });
         }
       }
