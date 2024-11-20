@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { FXQL } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { HelperService } from 'src/helper/helper.service';
@@ -10,6 +10,7 @@ export class FxqlService {
     private readonly databaseService: DatabaseService,
     private readonly parserService: ParserService,
     private readonly helperService: HelperService,
+    private readonly logger: Logger,
   ) {}
 
   async parseFxqlQuery(FXQL: string): Promise<any> {
@@ -17,6 +18,7 @@ export class FxqlService {
       const { results, errors } = this.parserService.parseFXQLStatements(FXQL);
 
       if (errors.length > 0) {
+        this.logger.error('FXQL parsing failed', JSON.stringify(errors));
         return {
           message: 'FXQL parsing failed',
           code: 'FXQL-400',
@@ -27,12 +29,18 @@ export class FxqlService {
       // Save parsed FXQL to database
       const savedData = await this.saveParsedFXQL(results);
 
+      this.logger.log('FXQL parsed successfully');
       return {
         message: 'FXQL parsed successfully',
         code: 'FXQL-200',
         data: savedData,
       };
     } catch (error) {
+      this.logger.error(
+        'An error occurred while parsing FXQL',
+        error.stack,
+        'FXQL-SERVICE',
+      );
       return {
         message: 'An error occurred while parsing FXQL',
         code: 'FXQL-500',
