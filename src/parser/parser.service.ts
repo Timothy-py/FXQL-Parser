@@ -10,49 +10,67 @@ export class ParserService {
   // > SELL value (numeric, can have decimal points)
   // > CAP value (whole number)
   private fxqlPattern =
-    /(\w{3})-(\w{3})\s*{\s*BUY\s*([\d.]+)\s*SELL\s*([\d.]+)\s*CAP\s*(\d+)\s*}/g;
+    /[A-Z]{3}-[A-Z]{3} {\s*\\n\s*BUY \d+(\.\d+)?\\n\s*SELL \d+(\.\d+)?\\n\s*CAP \d+\\n\s*}/gm;
+
+  private fxqlElementPattern =
+    /^(?<curr1>[A-Z]{3})-(?<curr2>[A-Z]{3}) {\\n  BUY (?<buy>\d+(\.\d+)?)\\n  SELL (?<sell>\d+(\.\d+)?)\\n  CAP (?<cap>\d+)\\n}$/m;
 
   // method to parse and validate FXQL statements
-  parseFXQLStatements(fxql: string): object {
-    if (!fxql.trim()) {
-      throw new Error('FXQL input cannot be empty.');
-    }
-
-    if (!this.fxqlPattern.test(fxql)) {
-      throw new Error('No valid FXQL blocks found.');
-    }
-
+  parseFXQLStatements(fxql: string): { results: any; errors: any } {
     const results = []; //Stores valid FXQL entries after parsing
     const errors = []; //Stores errors for invalid entries
 
-    let match; //Variable to hold regex match results
-
-    // Loop through each match in the input string using the regex pattern
-    while ((match = this.fxqlPattern.exec(fxql)) !== null) {
-      const [fullMatch, source, destination, buy, sell, cap] = match; // Destructure the match
-
-      // Validate extracted data
-      const validationError = this.validateStatement(
-        source,
-        destination,
-        buy,
-        sell,
-        cap,
-      );
-      if (validationError) {
-        // If validation fails, push the error and statement to errors array
-        errors.push({ error: validationError, statement: fullMatch });
-      } else {
-        // If validation succeeds, push the parsed results array
-        results.push({
-          SourceCurrency: source,
-          DestinationCurrency: destination,
-          BuyPrice: parseFloat(buy),
-          SellPrice: parseFloat(sell),
-          CapAmount: parseInt(cap, 10),
-        });
-      }
+    if (!fxql.trim()) {
+      errors.push({ error: 'FXQL input cannot be empty.', statement: fxql });
+      return { results, errors };
     }
+
+    // if (!this.fxqlPattern.test(fxql)) {
+    //   errors.push({ error: 'No valid FXQL blocks found.', statement: fxql });
+    //   return { results, errors };
+    // }
+
+    const matches = fxql.match(this.fxqlPattern);
+
+    if (matches === null) {
+      errors.push({ error: 'Invalid FXQL input.', statement: fxql });
+      return { results, errors };
+    }
+
+    matches.forEach((match) => {
+      const result = match.match(this.fxqlElementPattern);
+      if (result) {
+        const [source, destination, buy, sell, cap] = [
+          result.groups.curr1,
+          result.groups.curr2,
+          result.groups.buy,
+          result.groups.sell,
+          result.groups.cap,
+        ];
+
+        // Validate extracted data
+        const validationError = this.validateStatement(
+          source,
+          destination,
+          buy,
+          sell,
+          cap,
+        );
+        if (validationError) {
+          // If validation fails, push the error and statement to errors array
+          errors.push({ error: validationError, statement: match });
+        } else {
+          // If validation succeeds, push the parsed results array
+          results.push({
+            SourceCurrency: source,
+            DestinationCurrency: destination,
+            BuyPrice: parseFloat(buy),
+            SellPrice: parseFloat(sell),
+            CapAmount: parseInt(cap, 10),
+          });
+        }
+      }
+    });
 
     // Return the results and errors arrays as an object
     return { results, errors };
