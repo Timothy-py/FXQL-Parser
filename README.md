@@ -12,6 +12,7 @@ A Foreign Exchange Query Language (FXQL) Statement Parser designed to serve as p
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Running the Application](#running-the-application)
+  - [Running the Test](#running-the-test)
 - [Usage](#usage)
   - [API Endpoints](#api-endpoints)
   - [Request Examples](#request-examples)
@@ -109,6 +110,12 @@ Ensure you have the following installed:
 
 2. The application will run at [http://localhost:3000](http://localhost:3000).
 
+---
+
+## Running the Test
+```bash
+   yarn test
+   ```
 ---
 
 ## Usage
