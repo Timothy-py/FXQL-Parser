@@ -1,0 +1,12 @@
+node_modules
+dist
+.dockerignore
+.env
+.git
+.gitignore
+error.log
+.eslintignore
+.eslintrc.json
+.nvmrc
+eslint.config.mjs
+nodemon.json

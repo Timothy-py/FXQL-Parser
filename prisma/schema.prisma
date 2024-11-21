@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model FXQL {
+  id                  Int      @id @default(autoincrement())
+  sourceCurrency      Currency
+  destinationCurrency Currency
+  buyPrice            Float
+  sellPrice           Float
+  capAmount           Int
+  createdAt           DateTime @default(now())
+
+  @@unique([sourceCurrency, destinationCurrency])
+}
+
+enum Currency {
+  USD
+  GBP
+  EUR
+}
