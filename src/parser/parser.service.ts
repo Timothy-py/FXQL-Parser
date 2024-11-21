@@ -2,22 +2,17 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class ParserService {
-  // Regular expression pattern for parsing FXQL statements
-  // The pattern extracts:
-  // > Source currency (3 uppercase letters)
-  // > Destination currency (3 uppercase letters)
-  // > BUY value (numeric, can have decimal points)
-  // > SELL value (numeric, can have decimal points)
-  // > CAP value (whole number)
+  // Match individual FXQL statements
   private fxqlPattern =
-    /[A-Z]{3}-[A-Z]{3} {\s*\\n\s*BUY \d+(\.\d+)?\\n\s*SELL \d+(\.\d+)?\\n\s*CAP \d+\\n\s*}/gm;
+    /[A-Z]{3}-[A-Z]{3} {\s*\\n\s*BUY .+?\\n\s*SELL .+?\\n\s*CAP .+?\\n\s*}/gm;
 
+  // Match FXQL statement elements
   private fxqlElementPattern =
-    /^(?<curr1>[A-Z]{3})-(?<curr2>[A-Z]{3}) {\\n  BUY (?<buy>\d+(\.\d+)?)\\n  SELL (?<sell>\d+(\.\d+)?)\\n  CAP (?<cap>\d+)\\n}$/m;
+    /([A-Z]{3})-([A-Z]{3}) {\s*\\n\s*BUY (.+)\\n\s*SELL (.+)\\n\s*CAP (.+)\\n\s*}/;
 
   // method to parse and validate FXQL statements
   parseFXQLStatements(fxql: string): { results: any; errors: any } {
-    const results = []; //Stores valid FXQL entries after parsing
+    const results = []; //Stores valid FXQL entries after parÍsing
     const errors = []; //Stores errors for invalid entries
 
     if (!fxql.trim()) {
@@ -25,27 +20,17 @@ export class ParserService {
       return { results, errors };
     }
 
-    // if (!this.fxqlPattern.test(fxql)) {
-    //   errors.push({ error: 'No valid FXQL blocks found.', statement: fxql });
-    //   return { results, errors };
-    // }
-
     const matches = fxql.match(this.fxqlPattern);
-
-    if (matches === null) {
-      errors.push({ error: 'Invalid FXQL input.', statement: fxql });
-      return { results, errors };
-    }
 
     matches.forEach((match) => {
       const result = match.match(this.fxqlElementPattern);
       if (result) {
         const [source, destination, buy, sell, cap] = [
-          result.groups.curr1,
-          result.groups.curr2,
-          result.groups.buy,
-          result.groups.sell,
-          result.groups.cap,
+          result[1],
+          result[2],
+          result[3],
+          result[4],
+          result[5],
         ];
 
         // Validate extracted data
@@ -84,14 +69,6 @@ export class ParserService {
     sell: string,
     cap: string,
   ) {
-    // Check if source and destination currencies are exactly 3 uppercase letters
-    if (!/^[A-Z]{3}$/.test(source)) {
-      return 'Source currency must be exactly 3 uppercase letters.';
-    }
-    if (!/^[A-Z]{3}$/.test(destination)) {
-      return 'Destination currency must be exactly 3 uppercase letters.';
-    }
-
     // Check if source and destination currencies are valid
     if (!this.isValidCurrency(source)) {
       return "Source currency must be 'USD', 'GBP' or 'EUR'";
