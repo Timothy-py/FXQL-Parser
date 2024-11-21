@@ -3,12 +3,14 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class ParserService {
   // Match individual FXQL statements
+  // private fxqlPattern1 =
+  //   /[A-Z]{3}-[A-Z]{3} {\s*\\n\s*BUY \d+(\.\d+)?\\n\s*SELL \d+(\.\d+)?\\n\s*CAP \d+\\n\s*}/gm;
   private fxqlPattern =
-    /[A-Z]{3}-[A-Z]{3} {\s*\\n\s*BUY .+?\\n\s*SELL .+?\\n\s*CAP .+?\\n\s*}/gm;
+    /[aA-zZ]{3}-[aA-zZ]{3} {\s*\\n\s*BUY .+?\\n\s*SELL .+?\\n\s*CAP .+?\\n\s*}/gm;
 
   // Match FXQL statement elements
   private fxqlElementPattern =
-    /([A-Z]{3})-([A-Z]{3}) {\s*\\n\s*BUY (.+)\\n\s*SELL (.+)\\n\s*CAP (.+)\\n\s*}/;
+    /([aA-zZ]{3})-([aA-zZ]{3}) {\s*\\n\s*BUY (.+)\\n\s*SELL (.+)\\n\s*CAP (.+)\\n\s*}/;
 
   // method to parse and validate FXQL statements
   parseFXQLStatements(fxql: string): { results: any; errors: any } {
