@@ -18,7 +18,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, documentFactory);
+  SwaggerModule.setup('', app, documentFactory);
 
   // Enable global validation
   app.useGlobalPipes(new ValidationPipe());
